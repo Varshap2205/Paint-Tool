@@ -11,9 +11,5 @@ A simple and interactive browser-based drawing tool built with **Next.js** and *
 - 🔄 **Clear Canvas** – Reset your canvas with one button click  
 - ✨ **Responsive UI** with vibrant styling using Tailwind CSS
 
-## 📸 Demo
 
-![Paint Clone Screenshot](screenshot.png) <!-- Add screenshot if available -->
-
-## 📂 Folder Structure
 
