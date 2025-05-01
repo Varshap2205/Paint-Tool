@@ -55,17 +55,19 @@ export default function Canvas({
     }
   }, [canvasClear]);
 
-  const getMousePosition = (event) => {
+  const getPosition = (event) => {
     const boundaries = canvasRef.current.getBoundingClientRect();
+    const x = event.clientX || (event.touches ? event.touches[0].clientX : 0);
+    const y = event.clientY || (event.touches ? event.touches[0].clientY : 0);
     return {
-      x: event.clientX - boundaries.left,
-      y: event.clientY - boundaries.top,
+      x: x - boundaries.left,
+      y: y - boundaries.top,
     };
   };
 
   const handleMouseDown = (event) => {
     setIsMouseDown(true);
-    const currentPosition = getMousePosition(event);
+    const currentPosition = getPosition(event);
     setLastPosition(currentPosition);
 
     const context = canvasRef.current.getContext('2d');
@@ -79,7 +81,7 @@ export default function Canvas({
   const handleMouseMove = (event) => {
     if (!isMouseDown || !lastPosition) return;
 
-    const currentPosition = getMousePosition(event);
+    const currentPosition = getPosition(event);
     const context = canvasRef.current.getContext('2d');
 
     const midPointX = (lastPosition.x + currentPosition.x) / 2;
@@ -93,6 +95,40 @@ export default function Canvas({
   };
 
   const handleMouseUp = () => {
+    setIsMouseDown(false);
+    setLastPosition(null);
+  };
+
+  const handleTouchStart = (event) => {
+    setIsMouseDown(true);
+    const currentPosition = getPosition(event);
+    setLastPosition(currentPosition);
+
+    const context = canvasRef.current.getContext('2d');
+    context.beginPath();
+    context.moveTo(currentPosition.x, currentPosition.y);
+    context.lineWidth = currentSize;
+    context.lineCap = 'round';
+    context.strokeStyle = isEraser ? '#f5f5f5' : currentColor;
+  };
+
+  const handleTouchMove = (event) => {
+    if (!isMouseDown || !lastPosition) return;
+
+    const currentPosition = getPosition(event);
+    const context = canvasRef.current.getContext('2d');
+
+    const midPointX = (lastPosition.x + currentPosition.x) / 2;
+    const midPointY = (lastPosition.y + currentPosition.y) / 2;
+
+    context.quadraticCurveTo(lastPosition.x, lastPosition.y, midPointX, midPointY);
+    context.stroke();
+
+    storeDrawn(currentPosition.x, currentPosition.y);
+    setLastPosition(currentPosition);
+  };
+
+  const handleTouchEnd = () => {
     setIsMouseDown(false);
     setLastPosition(null);
   };
@@ -117,6 +153,9 @@ export default function Canvas({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       />
     </div>
   );
